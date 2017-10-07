@@ -1,7 +1,13 @@
 package seedu.address.logic.commands;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static seedu.address.logic.commands.CommandTestUtil.DESC_REMARK;
+import static seedu.address.logic.commands.CommandTestUtil.VALID_REMARK;
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandFailure;
-import static seedu.address.logic.commands.RemarkCommand.MESSAGE_NOT_IMPLEMENTED;
+import static seedu.address.logic.commands.RemarkCommand.MESSAGE_CAN_TAKE_ARGS;
+import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
+import static seedu.address.testutil.TypicalIndexes.INDEX_SECOND_PERSON;
 import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
 
 import org.junit.Test;
@@ -11,6 +17,7 @@ import seedu.address.logic.UndoRedoStack;
 import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
 import seedu.address.model.UserPrefs;
+import seedu.address.commons.core.index.Index;
 
 public class RemarkCommandTest {
 
@@ -18,12 +25,37 @@ public class RemarkCommandTest {
 
     @Test
     public void executeUndoableCommand_throwsCommandException() throws Exception {
-        RemarkCommand remarkCommand = prepareCommand();
-        assertCommandFailure(remarkCommand, model, MESSAGE_NOT_IMPLEMENTED);
+        RemarkCommand remarkCommand = prepareCommand(INDEX_FIRST_PERSON, VALID_REMARK);
+        assertCommandFailure(remarkCommand, model, String.format(MESSAGE_CAN_TAKE_ARGS, INDEX_FIRST_PERSON.getOneBased(), VALID_REMARK));
+    }
+    
+    @Test
+    public void equals() {
+        final RemarkCommand standardCommand = new RemarkCommand(INDEX_FIRST_PERSON, DESC_REMARK);
+
+        // same values -> returns true
+        String copyDescriptor = new String(DESC_REMARK);
+        RemarkCommand commandWithSameValues = new RemarkCommand(INDEX_FIRST_PERSON, copyDescriptor);
+        assertTrue(standardCommand.equals(commandWithSameValues));
+
+        // same object -> returns true
+        assertTrue(standardCommand.equals(standardCommand));
+
+        // null -> returns false
+        assertFalse(standardCommand.equals(null));
+
+        // different types -> returns false
+        assertFalse(standardCommand.equals(new ClearCommand()));
+
+        // different index -> returns false
+        assertFalse(standardCommand.equals(new RemarkCommand(INDEX_SECOND_PERSON, VALID_REMARK)));
+
+        // different descriptor -> returns false
+        assertFalse(standardCommand.equals(new RemarkCommand(INDEX_FIRST_PERSON, "random descriptor")));
     }
 
-    private RemarkCommand prepareCommand() {
-        RemarkCommand remarkCommand = new RemarkCommand();
+    private RemarkCommand prepareCommand(Index index, String remarkDescriptor) {
+        RemarkCommand remarkCommand = new RemarkCommand(index, remarkDescriptor);
         remarkCommand.setData(model, new CommandHistory(), new UndoRedoStack());
         return remarkCommand;
     }

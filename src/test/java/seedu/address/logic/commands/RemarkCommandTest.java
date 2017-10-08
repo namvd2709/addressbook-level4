@@ -18,6 +18,7 @@ import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
 import seedu.address.model.UserPrefs;
 import seedu.address.commons.core.index.Index;
+import seedu.address.model.person.Remark;
 
 public class RemarkCommandTest {
 
@@ -25,16 +26,16 @@ public class RemarkCommandTest {
 
     @Test
     public void executeUndoableCommand_throwsCommandException() throws Exception {
-        RemarkCommand remarkCommand = prepareCommand(INDEX_FIRST_PERSON, VALID_REMARK);
+        RemarkCommand remarkCommand = prepareCommand(INDEX_FIRST_PERSON, new Remark(VALID_REMARK));
         assertCommandFailure(remarkCommand, model, String.format(MESSAGE_CAN_TAKE_ARGS, INDEX_FIRST_PERSON.getOneBased(), VALID_REMARK));
     }
     
     @Test
     public void equals() {
-        final RemarkCommand standardCommand = new RemarkCommand(INDEX_FIRST_PERSON, DESC_REMARK);
+        final RemarkCommand standardCommand = new RemarkCommand(INDEX_FIRST_PERSON, new Remark(DESC_REMARK));
 
         // same values -> returns true
-        String copyDescriptor = new String(DESC_REMARK);
+        Remark copyDescriptor = new Remark(DESC_REMARK);
         RemarkCommand commandWithSameValues = new RemarkCommand(INDEX_FIRST_PERSON, copyDescriptor);
         assertTrue(standardCommand.equals(commandWithSameValues));
 
@@ -48,13 +49,13 @@ public class RemarkCommandTest {
         assertFalse(standardCommand.equals(new ClearCommand()));
 
         // different index -> returns false
-        assertFalse(standardCommand.equals(new RemarkCommand(INDEX_SECOND_PERSON, VALID_REMARK)));
+        assertFalse(standardCommand.equals(new RemarkCommand(INDEX_SECOND_PERSON, new Remark(VALID_REMARK))));
 
         // different descriptor -> returns false
-        assertFalse(standardCommand.equals(new RemarkCommand(INDEX_FIRST_PERSON, "random descriptor")));
+        assertFalse(standardCommand.equals(new RemarkCommand(INDEX_FIRST_PERSON, new Remark("random descriptor"))));
     }
 
-    private RemarkCommand prepareCommand(Index index, String remarkDescriptor) {
+    private RemarkCommand prepareCommand(Index index, Remark remarkDescriptor) {
         RemarkCommand remarkCommand = new RemarkCommand(index, remarkDescriptor);
         remarkCommand.setData(model, new CommandHistory(), new UndoRedoStack());
         return remarkCommand;

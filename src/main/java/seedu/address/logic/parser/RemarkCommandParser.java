@@ -8,6 +8,7 @@ import seedu.address.commons.core.index.Index;
 import seedu.address.commons.exceptions.IllegalValueException;
 import seedu.address.logic.commands.RemarkCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
+import seedu.address.model.person.Remark;
 
 /**
  * Parses input arguments and creates a new Remark object
@@ -32,6 +33,7 @@ public class RemarkCommandParser implements Parser<RemarkCommand> {
         } catch (IllegalValueException ive) {
             throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, RemarkCommand.MESSAGE_USAGE));
         }
-        return new RemarkCommand(index, remarkDescriptor);
+        
+        return new RemarkCommand(index, new Remark(remarkDescriptor));
     }
 }

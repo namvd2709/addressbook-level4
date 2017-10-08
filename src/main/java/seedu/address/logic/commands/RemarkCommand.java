@@ -29,7 +29,7 @@ public class RemarkCommand extends UndoableCommand {
             + PREFIX_REMARK + "Likes cake";
 
     public static final String MESSAGE_SUCCESS = "New remark added: %1$s";
-    
+
     private final Index index;
     private final Remark remarkDescriptor;
 
@@ -44,8 +44,10 @@ public class RemarkCommand extends UndoableCommand {
         this.index = index;
         this.remarkDescriptor = remarkDescriptor;
     }
-    
-    public Remark getRemark() { return remarkDescriptor; }
+
+    public Remark getRemark() {
+        return remarkDescriptor;
+    }
 
     @Override
     protected CommandResult executeUndoableCommand() throws CommandException {

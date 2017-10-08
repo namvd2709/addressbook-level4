@@ -33,7 +33,7 @@ public class RemarkCommandParser implements Parser<RemarkCommand> {
         } catch (IllegalValueException ive) {
             throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, RemarkCommand.MESSAGE_USAGE));
         }
-        
+
         return new RemarkCommand(index, new Remark(remarkDescriptor));
     }
 }

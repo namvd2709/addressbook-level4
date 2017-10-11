@@ -63,7 +63,7 @@ public class NameContainsKeywordsPredicateTest {
         // Start of last name match
         predicate = new NameContainsKeywordsPredicate(Arrays.asList("Bo", "Guy"));
         assertTrue(predicate.test(new PersonBuilder().withName("Alice Bob").build()));
-        
+
         // Some fuzzy match
         predicate = new NameContainsKeywordsPredicate(Arrays.asList("lice", "Guy"));
         assertTrue(predicate.test(new PersonBuilder().withName("Alice Bob").build()));

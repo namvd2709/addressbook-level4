@@ -49,18 +49,19 @@ public class StringUtil {
      * @param sentence cannot be null
      * @param word cannot be null, cannot be empty, must be a single word
      */
-    public static int getFuzzyScore(String sentence, String word) {
+    public static float getFuzzyScore(String sentence, String word) {
         requireNonNull(sentence);
         requireNonNull(word);
 
         String preppedWord = word.trim();
         checkArgument(!preppedWord.isEmpty(), "Word parameter cannot be empty");
-        checkArgument(preppedWord.split("\\s+").length == 1, "Word parameter should be a single word");
+        checkArgument(preppedWord.split(
+                "\\s+").length == 1, "Word parameter should be a single word");
 
         FuzzyScore fuzzy = new FuzzyScore(Locale.ENGLISH);
         int score = fuzzy.fuzzyScore(sentence, word);
         int total = fuzzy.fuzzyScore(word, word);
-        return score / total;
+        return (float) score / (float) total;
     }
 
     /**
@@ -70,7 +71,7 @@ public class StringUtil {
      */
 
     public static boolean isFuzzyMatch(String sentence, String word) {
-        int percentage = getFuzzyScore(sentence, word);
+        float percentage = getFuzzyScore(sentence, word);
         return (percentage > 0.5);
     }
 

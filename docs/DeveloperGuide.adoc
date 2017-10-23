@@ -345,6 +345,102 @@ image::UndoRedoActivityDiagram.png[width="200"]
 **Cons:** Requires dealing with commands that have already been undone: We must remember to skip these commands. Violates Single Responsibility Principle and Separation of Concerns as `HistoryManager` now needs to do two different things. +
 // end::undoredo[]
 
+// tag::group[]
+=== Grouping mechanism
+==== Groups vs Tags
+* Conceptually different. Groups are long-term, standalone constructs, while Tags are individual Person's attributes
+* Groups have attributes (number of members)
+* Groups can be listed together with their members
+* Adding and removal from a Group can be done in batches (multiple Persons at a time)
+
+Big picture. Note that AddressBook further updates the Person's references to the groups.
+`filtered` denotes the Person extracted by applying the index filtering.
+
+image::GroupSequenceDiagram.png[width="800"]
+
+==== Design Considerations
+**Aspect:** Storing information about group members +
+**Alternative 1 (current choice):** Members store list of groups they belong to +
+**Pros:** Code related to the tags (filtering, storing) can be reused +
+**Cons:** Finding the members of specific group more computationally expensive. +
+ Information about groups has to be added wherever Person is used (add, edit commands). Some code duplicated +
+**Alternative 2:** Group stores list of members +
+**Pros:** Easier to understand. Easier to retrieve all the members of a group +
+**Cons:** Even though some mechanisms are similar to ones related to Tag, new classes are needed to handle them.
+
+---
+**Aspect:** Managing groups +
+**Alternative 1 (current choice):** Groups can be managed (members added, removed) only using group-specific commands +
+**Pros:** Avoids cluttering other commands (add, edit).
+ Separates the concepts of Person and Group, also Tag and Group. +
+**Cons:** Adding a Person to a group at the moment of the Person's creation is impossible +
+**Alternative 2:** Groups are accessed and managed just as Tags, when managing a Person +
+**Pros:** Avoids creation of a new command. +
+**Cons:** Adds another attribute to a Person increasing its complexity.
+Not intuitive to manage group by managing Person.
+
+// end::undoredo[]
+
+// tag::searching[]
+=== Searching mechanism
+Here, searching entails the autocomplete function, finding mechanism and suggesting mechanism.
+The search mechanism is done with user's usability in mind and is fully implemented such that it is most intuitive to use for the users.
+
+==== Autocomplete function
+The autocomplete function mimics the behaviour of familiar Unix-based command lines. The autocomplete function is managed by a class `AutocompleteManager`,
+whose function `attemptAutocomplete` searches for the string starting with the specified characters in the string array provided and will return the
+string if a unique match is present. +
+
+==== Finding mechanism
+The find function currently matches name in the address book if those name starts with the find keyword. Whenever the a find event is triggered, the address book
+will filter the address book based on the predicate provided, the mechanism of which is specified by `NameContainsKeywordsPredicate` class.
+This class overrides the `test` function to filter the list based on `containsWordsStartWithString`, a `StringUtil` method which returns whether
+a string starts with another string. For example, 'Dav' will return 'Dave' +
+Looking forward, the finding mechanism will be more flexible, by implementing fuzzy search mechanism which allows returning
+close matches. For example, 'Dve' will return 'Dave' or 'Dove'. +
+
+==== Suggesting mechanism
+The suggestion mechanism will be a hybrid of the above two functionalities, in which suggestion, whether commands or a match string inside the addressbook
+will be shown as the user type commands. This has not been implemented but will be a UI-heavy component that anchor on the fuzzy search logic.
+// end::searching[]
+
+// tag::findtag[]
+=== Find Tag
+
+The `FindTagCommand` allows the user to locate persons in the addressbook by their tag instead of their names.
+
+* Able to view contacts by similar attributes such as 'colleagues' or 'friends'.
+* Utilises a `TagContainsKeywordsPredicate` class that extends the `Predicate` class.
+** Allows the `FindTag` feature to function with more than 1 keyword at a time easily.
+
+image::FindTagSequenceDiagram.png[width="1200"]
+
+==== Design Considerations
+**Aspect:** Searching for tags  +
+**Alternative 1 (current choice):** Search through the `ReadOnlyPerson` class +
+**Pros:** Code related to the findin through names can be reused +
+**Cons:** Requires more computational power to go through all existing persons in the list. +
+**Alternative 2:** Allow Tag class to store `ReadOnlyPerson` class as parameter +
+**Pros:** Easier to retrieve all contacts under a certain `Tag` +
+**Cons:** Potentially cleaner, but limits future improvements (combining all `Find` features).
+
+---
+**Aspect:** how `FindTag` executes (AND logic vs OR logic) +
+**Alternative 1 (current choice):** Utilising OR logic +
+**Pros:** More flexible usag eallows user to view contacts across various tags , +
+          user does not have to utilise more than 1 `FindTag` command to view various contacts. +
+**Cons:** Looking for specific contacts that have more than 1 tag becomes impossible. +
+**Alternative 2:** Utilising AND logic  +
+**Pros:** Allows finding of specific contacts with more than 1 tag. +
+**Cons:** Limits flexibility for power users that wish to a various contacts across more than 1 tag.
+
+==== Future Improvements
+
+* Combining all `Find` features into 1 `Filter` feautre to allow filtering across all parameters of `Person` class.
+* Introducing `and` and `or` commands within `Filter` to reap benefits of both AND and OR logic.
+
+// end::findtag[]
+
 === Logging
 
 We are using `java.util.logging` package for logging. The `LogsCenter` class is used to manage the logging levels and logging destinations.
@@ -897,6 +993,85 @@ Use case ends.
 ** 2a1. AddressBook notifies the user.
 +
 Use case ends.
+
+[discrete]
+=== Use case: Gradebook
+
+*MSS*
+
+1.  User requests to access gradebook.
+2.  AddressBook shows a list of modules with corresponding grades.
+3.  User requests to add a grade to a module.
+4.  AddressBook adds grade to the module.
+5.  AddressBook recalculates CAP.
++
+Use case ends.
+
+*Extensions*
+
+[none]
+* 2a. The list is empty.
++
+Use case ends.
+
+* 3a. The given module is invalid.
++
+[none]
+** 3a1. AddressBook shows an error message.
++
+Use case resumes at step 2.
+
+[discrete]
+=== Use case: Exam List
+
+*MSS*
+
+1.  User requests to list exams.
+2.  AddressBook shows a list of exams with corresponding dates.
+3.  User requests to delete a specific exam in the list.
+4.  AddressBook deletes the exam.
++
+Use case ends.
+
+*Extensions*
+
+[none]
+* 2a. The list is empty.
++
+Use case ends.
+
+* 3a. The given index is invalid.
++
+[none]
+** 3a1. AddressBook shows an error message.
++
+Use case resumes at step 2.
+
+[discrete]
+=== Use case: Weekly Schedule
+
+*MSS*
+
+1.  User requests to view schedule
+2.  AddressBook shows a weeks list of dates and events.
+3.  User requests to delete a specific event in the list.
+4.  AddressBook deletes the event.
++
+Use case ends.
+
+*Extensions*
+
+[none]
+* 2a. The list is empty.
++
+Use case ends.
+
+* 3a. The given event is invalid.
++
+[none]
+** 3a1. AddressBook shows an error message.
++
+Use case resumes at step 2.
 
 [appendix]
 == Non Functional Requirements

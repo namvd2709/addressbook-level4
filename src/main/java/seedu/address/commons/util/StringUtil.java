@@ -6,6 +6,9 @@ import static seedu.address.commons.util.AppUtil.checkArgument;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Locale;
+
+import org.apache.commons.text.similarity.FuzzyScore;
 
 /**
  * Helper functions for handling strings.
@@ -62,6 +65,36 @@ public class StringUtil {
             }
         }
         return false;
+    }
+
+    /**
+     * TODO
+     * @param sentence cannot be null
+     * @param word cannot be null, cannot be empty, must be a single word
+     */
+    public static float getFuzzyScore(String sentence, String word) {
+        requireNonNull(sentence);
+        requireNonNull(word);
+
+        String preppedWord = word.trim();
+        checkArgument(!preppedWord.isEmpty(), "Word parameter cannot be empty");
+        checkArgument(preppedWord.split(
+                "\\s+").length == 1, "Word parameter should be a single word");
+
+        FuzzyScore fuzzy = new FuzzyScore(Locale.ENGLISH);
+        int score = fuzzy.fuzzyScore(sentence, word);
+        int total = fuzzy.fuzzyScore(word, word);
+        return (float) score / (float) total;
+    }
+
+    /**
+     * TODO
+     * @param sentence cannot be null
+     * @param word cannot be null, cannot be empty, must be a single word
+     */
+    public static boolean isFuzzyMatch(String sentence, String word) {
+        float percentage = getFuzzyScore(sentence, word);
+        return (percentage > 0.5);
     }
 
     /**

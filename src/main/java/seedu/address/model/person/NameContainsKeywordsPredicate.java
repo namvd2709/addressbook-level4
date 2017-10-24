@@ -18,7 +18,7 @@ public class NameContainsKeywordsPredicate implements Predicate<ReadOnlyPerson> 
     @Override
     public boolean test(ReadOnlyPerson person) {
         return keywords.stream()
-                .anyMatch(keyword -> StringUtil.containsWordsStartWithString(person.getName().fullName, keyword));
+                .anyMatch(keyword -> StringUtil.isFuzzyMatch(person.getName().fullName, keyword));
     }
 
     @Override
